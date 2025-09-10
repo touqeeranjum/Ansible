@@ -1,0 +1,4 @@
+---
+- import_playbook: eur.yml
+- import_playbook: afr.yml
+- import_playbook: amr.yml

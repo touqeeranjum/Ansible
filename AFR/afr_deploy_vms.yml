@@ -1,0 +1,193 @@
+---
+- name: AFR VM DEPLOYMENTS
+  hosts: afr
+  gather_facts: false
+  become: true
+  collections:
+    - community.vmware
+
+  vars_files:
+    - vars_afr_vms.yml
+
+  tasks:
+    - name: AFR-RTR1, AFR-RTR2 Deployment
+      vmware_deploy_ovf:
+        hostname: '{{ ansible_host }}'
+        username: '{{ ansible_user }}'
+        password: '{{ ansible_password }}'
+        datastore: "{{ dstore1 }}"
+        networks:
+          "Network 1": "{{ item.ovanet1a }}"
+          "Network 2": "{{ item.ovanet1b }}"
+        ovf: "{{ item.ovapath1 }}"
+        name: "{{ item.ovaname1 }}"
+        validate_certs: false
+        power_on: 'no'
+      loop: "{{ ovavms1 }}"
+      delegate_to: localhost
+
+    - name: AFR-ADDC, AFR-TI, AFR-VBR Deployment
+      vmware_guest:
+        hostname: "{{ ansible_host }}"
+        username: "{{ ansible_user }}"
+        password: "{{ ansible_password }}"
+        validate_certs: false
+        folder: '/vm'
+        name: "{{ item.isoname2 }}"
+        datastore: "{{ dstore1 }}"
+        hardware:
+          memory_mb: "{{ item.isoram2 }}"
+          num_cpus: "{{ item.isocpu2 }}"
+          num_cpu_cores_per_socket: "{{ item.isocores2 }}"
+          boot_firmware: 'efi'
+          scsi: "{{ item.isocontroller2 }}"
+        disk:
+          - size_gb: "{{ item.isodisk2 }}"
+            type: thin
+            datastore: "{{ dstore1 }}"
+        cdrom:
+          - controller_number: 0
+            unit_number: 0
+            controller_type: sata
+            state: present
+            type: iso
+            iso_path: "{{ item.isofile2 }}"
+        networks:
+          - name: "{{ item.isonet2 }}"
+            device_type: vmxnet3
+            start_connected: true
+            type: static
+        state: poweredoff
+        guest_id: "{{ item.isogid2 }}"
+      loop: "{{ isovms2 }}"
+      delegate_to: localhost
+
+    - name: AFR-SWND Deployments
+      vmware_deploy_ovf:
+        hostname: '{{ ansible_host }}'
+        username: '{{ ansible_user }}'
+        password: '{{ ansible_password }}'
+        datastore: "{{ item.ovadisk3 }}"
+        networks:
+          "Network 1": "{{ item.ovanet3a }}"
+          "Network 2": "{{ item.ovanet3b }}"
+          "Network 3": "{{ item.ovanet3c }}"
+        ovf: "{{ item.ovapath3 }}"
+        name: "{{ item.ovaname3 }}"
+        validate_certs: false
+        power_on: 'no'
+      loop: "{{ ovavms3 }}"
+      delegate_to: localhost
+
+    - name: Add Disks To AFR-SWND
+      vmware_guest_disk:
+        hostname: '{{ ansible_host }}'
+        username: '{{ ansible_user }}'
+        password: '{{ ansible_password }}'
+        validate_certs: false
+        name: "{{ item.ovaname3 }}"
+        datacenter: 'ha-datacenter'
+        disk:
+          - size_mb: "{{ item.ovadisksize3 }}"
+            type: thin
+            datastore: "{{ item.ovadisk3 }}"
+            state: present
+            scsi_controller: 1
+            unit_number: 1
+            scsi_type: paravirtual
+            disk_mode: persistent
+      loop: "{{ ovavms3 }}"
+      delegate_to: localhost
+
+    - name: AFR-NSX-LM Deployment
+      vmware_deploy_ovf:
+        hostname: '{{ ansible_host }}'
+        username: '{{ ansible_user }}'
+        password: '{{ ansible_password }}'
+        datastore: "{{ dstore1 }}"
+        ovf: '/root/nsx-unified-appliance-4.2.3.0.0.24866352.ova'
+        name: "AFR-NSX-LM"
+        networks:
+          "Network 1": "{{ net4 }}"
+        wait_for_ip_address: true
+        validate_certs: false
+        power_on: 'no'
+        inject_ovf_env: true
+        properties:
+          nsx_grub_passwd: 'password'
+          nsx_passwd_0: 'password'
+          nsx_cli_passwd_0: 'password'
+          nsx_cli_audit_passwd_0: 'password'
+          nsx_cli_username: 'admin'
+          nsx_cli_audit_username: 'admin'
+          nsx_role: "NSX Manager"
+          nsx_hostname: 'AFR-NSX-LM'
+          nsx_ip_0: '10.21.35.16'
+          nsx_netmask_0: '24'
+          nsx_gateway_0: '10.21.35.11'
+          nsx_dns1_0: '10.21.30.15'
+          nsx_domain_0: 'vlab.lab'
+          nsx_ntp_0: '192.168.9.35'
+          nsx_isSSHEnabled: 'True'
+          nsx_allowSSHRootLogin: 'True'
+      delegate_to: localhost
+
+    - name: Change AFR-NSX-LM Resources
+      community.vmware.vmware_guest:
+        hostname: "{{ ansible_host }}"
+        username: "{{ ansible_user }}"
+        password: "{{ ansible_password }}"
+        datacenter: "ha-datacenter"
+        name: "AFR-NSX-LM"
+        validate_certs: false
+        hardware:
+          cpu_reservation: 0
+          memory_mb: 24576
+          mem_reservation: 0
+          num_cpus: 8
+          num_cpu_cores_per_socket: 4
+      delegate_to: localhost
+
+    - name: Deploy VCSA
+      vmware_deploy_ovf:
+        hostname: '{{ ansible_host }}'
+        username: '{{ ansible_user }}'
+        password: '{{ ansible_password }}'
+        datastore: "{{ dstore1 }}"
+        ovf: '/root/VMware-vCenter-Server-Appliance-8.0.3.00500-24674346_OVF10.ova'
+        name: "AFR-VCSA"
+        networks:
+          "Network 1": "{{ net4 }}"
+        wait_for_ip_address: true
+        validate_certs: false
+        power_on: 'no'
+        inject_ovf_env: true
+        properties:
+          guestinfo.cis.appliance.net.addr.family: 'ipv4'
+          guestinfo.cis.appliance.net.mode: 'static'
+          guestinfo.cis.appliance.net.addr: '10.21.35.17'
+          guestinfo.cis.appliance.net.pnid: "afr-vcsa.vlab.lab"
+          guestinfo.cis.appliance.net.prefix: '24'
+          guestinfo.cis.appliance.net.gateway: '10.21.35.11'
+          guestinfo.cis.appliance.net.dns.servers: '10.21.30.15'
+          guestinfo.cis.appliance.root.passwd: 'password'
+          guestinfo.cis.ceip_enabled: "False"
+          guestinfo.cis.deployment.autoconfig: 'True'
+          guestinfo.cis.vmdir.password: 'password'
+          domain: 'vlab.lab'
+      delegate_to: localhost
+
+    - name: Change VCSA Resources
+      community.vmware.vmware_guest:
+        hostname: "{{ ansible_host }}"
+        username: "{{ ansible_user }}"
+        password: "{{ ansible_password }}"
+        datacenter: "ha-datacenter"
+        name: "AFR-VCSA"
+        validate_certs: false
+        hardware:
+          memory_mb: 12288 # Change to 12288
+          mem_reservation: 0
+          num_cpus: 8
+          num_cpu_cores_per_socket: 4
+      delegate_to: localhost

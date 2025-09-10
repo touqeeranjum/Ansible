@@ -1,0 +1,109 @@
+ovavms1:
+  - ovaname1: "EUR-EDG-RTR1"
+    ovapath1: "/root/VyOS_20250818_0022.ova"
+    ovanet1a: "{{ net1 }}"
+    ovanet1b: "{{ net2 }}"
+  - ovaname1: "EUR-EDG-RTR2"
+    ovapath1: "/root/VyOS_20250818_0022.ova"
+    ovanet1a: "{{ net1 }}"
+    ovanet1b: "{{ net2 }}"
+
+isovms2:
+  - isoname2: "EUR-ADDC"
+    isofile2: "[EUR_Disk1_VM]/ISO/Server2022VL_1487_Unattended.iso"
+    isoram2: 2048
+    isocpu2: 2
+    isocores2: 1
+    isodisk2: 40
+    isocontroller2: "lsilogicsas"
+    isonet2: "{{ net3 }}"
+    isogid2: 'windows2019srvNext_64Guest'
+  - isoname2: "EUR-GRF"
+    isofile2: "[EUR_Disk1_VM]/ISO/ubuntu-25.04-live-server-amd64_Unattended.iso"
+    isoram2: 1024
+    isocpu2: 2
+    isocores2: 1
+    isodisk2: 16
+    isocontroller2: "paravirtual"
+    isonet2: "{{ net3 }}"
+    isogid2: 'ubuntu64Guest'
+  - isoname2: "EUR-TI"
+    isofile2: "[EUR_Disk1_VM]/ISO/ubuntu-25.04-live-server-amd64_Unattended.iso"
+    isoram2: 1024
+    isocpu2: 2
+    isocores2: 1
+    isodisk2: 16
+    isocontroller2: "paravirtual"
+    isonet2: "{{ net5 }}"
+    isogid2: 'ubuntu64Guest'
+  - isoname2: "EUR-VBR"
+    isofile2: "[EUR_Disk1_VM]/ISO/Server2022VL_1487_Unattended.iso"
+    isoram2: 6144
+    isocpu2: 6
+    isocores2: 3
+    isodisk2: 50
+    isocontroller2: "lsilogicsas"
+    isonet2: "{{ net3 }}"
+    isogid2: 'windows2019srvNext_64Guest'
+  - isoname2: "EUR-VO"
+    isofile2: "[EUR_Disk1_VM]/ISO/Server2022VL_1487_Unattended.iso"
+    isoram2: 4096
+    isocpu2: 4
+    isocores2: 2
+    isodisk2: 50
+    isocontroller2: "lsilogicsas"
+    isonet2: "{{ net3 }}"
+    isogid2: 'windows2019srvNext_64Guest' 
+  - isoname2: "EUR-VEM"
+    isofile2: "[EUR_Disk1_VM]/ISO/Server2022VL_1487_Unattended.iso"
+    isoram2: 4096
+    isocpu2: 4
+    isocores2: 2
+    isodisk2: 50
+    isocontroller2: "lsilogicsas"
+    isonet2: "{{ net3 }}"
+    isogid2: 'windows2019srvNext_64Guest'
+  - isoname2: "EUR-VDRO"
+    isofile2: "[EUR_Disk1_VM]/ISO/Server2022VL_1487_Unattended.iso"
+    isoram2: 12288
+    isocpu2: 12
+    isocores2: 6
+    isodisk2: 50
+    isocontroller2: "lsilogicsas"
+    isonet2: "{{ net3 }}"
+    isogid2: 'windows2019srvNext_64Guest'
+
+ovavms3:
+  - ovaname3: "EUR-SWND-VSN1"
+    ovapath3: "/root/StarWindvSAN_19551_25Feb2025.ova"
+    ovadisk3: "{{ dstore2 }}"
+    ovadisksize3: 4353
+    ovanet3a: "{{ net3 }}"
+    ovanet3b: "{{ net5 }}"
+    ovanet3c: "{{ net5 }}"
+  - ovaname3: "EUR-SWND-VSN2"
+    ovapath3: "/root/StarWindvSAN_19551_25Feb2025.ova"
+    ovadisk3: "{{ dstore2 }}"
+    ovadisksize3: 4353
+    ovanet3a: "{{ net3 }}"
+    ovanet3b: "{{ net5 }}"
+    ovanet3c: "{{ net5 }}"
+  - ovaname3: "EUR-SWND-VBR"
+    ovapath3: "/root/StarWindvSAN_19551_25Feb2025.ova"
+    ovadisk3: "{{ dstore3 }}"
+    ovadisksize3: 9212
+    ovanet3a: "{{ net3 }}"
+    ovanet3b: "{{ net5 }}"
+    ovanet3c: "{{ net5 }}"
+
+ovavms4:
+  - ovaname4: "EUR-NSX-GM"
+  - ovaname4: "EUR-NSX-LM"
+  - ovaname4: "EUR-VCSA"
+
+ovavms5:
+  - ovaname5: "EUR-VI-EDG-ESX1"
+  - ovaname5: "EUR-VI-EDG-ESX2"
+  - ovaname5: "EUR-CMP-ESX3"
+  - ovaname5: "EUR-CMP-ESX4"
+  - ovaname5: "EUR-CMP-ESX5"

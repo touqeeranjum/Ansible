@@ -1,0 +1,47 @@
+[dc:children]
+dceur
+dcafr
+dcamr
+
+[dceur]
+eur ansible_host=192.168.9.61
+
+[dcafr]
+afr ansible_host=192.168.9.62
+
+[dcamr]
+amr ansible_host=192.168.9.63
+
+[dceur:vars]
+dstore1=EUR_Disk1_VM
+dstore2=EUR_Disk2_vSAN
+dstore3=EUR_Disk3_Veeam
+dstore4=EUR_Disk4_Spare
+net1=EUR_1G_Trunk
+net2=EUR_10G_Trunk
+net3=EUR_VL1130_Infrastructure
+net4=EUR_VL1135_VMware
+net5=EUR_VL1140_Storage
+
+[dcafr:vars]
+dstore1=AFR_Disk1_VM
+net1=AFR_1G_Trunk
+net2=AFR_10G_Trunk
+net3=AFR_VL2130_Infrastructure
+net4=AFR_VL2135_VMware
+net5=AFR_VL2140_Storage
+
+[dcamr:vars]
+dstore1=AMR_Disk1_VM
+net1=AMR_1G_Trunk
+net2=AMR_10G_Trunk
+net3=AMR_VL3130_Infrastructure
+net4=AMR_VL3135_VMware
+net5=AMR_VL3140_Storage
+
+[all:vars]
+ansible_port=22
+ansible_connection=ssh
+ansible_user=root
+ansible_password=password
+ansible_python_interpreter=/usr/bin/python3

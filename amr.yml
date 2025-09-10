@@ -1,0 +1,4 @@
+---
+- import_playbook: AMR/amr_deploy_vms.yml
+- import_playbook: AMR/nested/main.yaml
+- import_playbook: AMR/amr_deploy_ops.yml

@@ -1,0 +1,56 @@
+---
+- name: AFR VM DEPLOYMENTS
+  hosts: afr
+  gather_facts: false
+  become: true
+  collections:
+    - community.vmware
+
+  vars_files:
+    - vars_afr_vms.yml
+
+  tasks:
+    - name: Fetching VMs List
+      set_fact:
+        unregvms: "{{ ovavms1 | list + isovms2 | list + ovavms3 | list + ovavms4 | list + ovavms5 }}"
+
+    - name: Unregister All VMs
+      community.vmware.vmware_guest_register_operation:
+        hostname: "{{ ansible_host }}"
+        username: "{{ ansible_user }}"
+        password: "{{ ansible_password }}"
+        name: "{{ item.ovaname1 | default(item.isoname2) | default(item.ovaname3) | default(item.ovaname4) | default(item.ovaname5) }}"
+        esxi_hostname: "{{ ansible_host }}"
+        folder: '/vm'
+        state: absent
+        validate_certs: false
+      loop: "{{ unregvms }}"
+      delegate_to: localhost
+
+    - name: Moving VMs to VM Folder
+      ansible.builtin.shell:
+        cmd: mv /vmfs/volumes/"{{ dstore1 }}"/AFR-* /vmfs/volumes/"{{ dstore1 }}"/VM/
+      become: true
+      delegate_to: afr
+
+    - name: Waiting 120 Seconds
+      ansible.builtin.wait_for:
+        timeout: 120
+      delegate_to: localhost
+
+    - name: Preparing VMs List To Register
+      set_fact:
+        regvms1: "{{ ovavms1 | map('combine', {'type': 'vmx'}) | list + isovms2 | map('combine', {'type': 'vmx'}) | list + ovavms3 | map('combine', {'type': 'vmx'}) | list + ovavms4 | map('combine', {'type': 'vmx'}) | list + ovavms5 | map('combine', {'type': 'vmx'}) | list }}"
+
+    - name: Registering VMs
+      ansible.builtin.shell:
+        cmd: /bin/vim-cmd solo/registervm /vmfs/volumes/"{{ dstore1 }}"/VM/"{{ item.ovaname1 | default(item.isoname2) | default(item.ovaname3) | default(item.ovaname4) | default(item.ovaname5) }}"/"{{ item.ovaname1 | default(item.isoname2) | default(item.ovaname3) | default(item.ovaname4) | default(item.ovaname5) }}".vmx
+      loop: "{{ regvms1 }}"
+      become: true
+      delegate_to: afr
+
+    - name: Adding UUID Action Keep To VMs
+      ansible.builtin.shell:
+        cmd: find /vmfs/volumes/"{{ dstore1 }}"/VM -type f -name "*.vmx" -exec sh -c 'echo "uuid.action = keep" >> "$1"' -- {} \;
+      become: true
+      delegate_to: afr

@@ -1,0 +1,4 @@
+---
+- import_playbook: EUR/eur_deploy_vms.yml
+- import_playbook: EUR/nested/main.yaml
+- import_playbook: EUR/eur_deploy_ops.yml
