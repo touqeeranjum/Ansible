@@ -1,1 +1,1 @@
-This project is part of a bigger Vmware home lab VMware project.
+This project is part of a bigger VMware home lab VMware project involving Nested VMware SDDC and NSX..
